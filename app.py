@@ -7,8 +7,6 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-app = Flask(__name__)
-
 try:
     with open("firewall_state.json", "r") as f:
         firewall_state = json.load(f)
@@ -59,6 +57,9 @@ def save_firewall_state():
     with open("firewall_state.json", "w") as f:
         json.dump(firewall_state, f, indent=4)
 
+@app.route('/')
+def index():
+    return "✅ Flask Firewall Simulator is Running. Use /analyze or /firewall_state."
 
 @app.route('/analyze', methods=['POST'])
 def analyze_packet():
@@ -90,6 +91,22 @@ def analyze_packet():
         save_firewall_state()
 
     return jsonify(response)
+
+@app.route('/unblock/<ip>', methods=['DELETE'])
+def unblock_ip(ip):
+    if ip in firewall_state["blocked_ips"]:
+        firewall_state["blocked_ips"].remove(ip)
+        firewall_state["log"].append({
+            "event": "Unblocked IP",
+            "ip": ip,
+            "reason": "Manual unblock",
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        })
+        save_firewall_state()  # if you added persistence
+        return jsonify({"status": "success", "message": f"{ip} unblocked."})
+    else:
+        return jsonify({"status": "not_found", "message": f"{ip} is not currently blocked."}), 404
+
 
 @app.route('/firewall_state', methods=['GET'])
 def get_firewall_state():
