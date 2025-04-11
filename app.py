@@ -13,7 +13,7 @@ try:
 except FileNotFoundError:
     firewall_state = {"blocked_ips": [], "log": []}
 
-
+# Define threat types
 THREAT_SCENARIOS = [
     {
         "threat_type": "TCP SYN Flood Attack",
