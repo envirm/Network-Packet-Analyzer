@@ -1,0 +1,11 @@
+version: '3'
+services:
+  kali:
+    build: .
+    container_name: kali_container
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./data:/root/shared
+    ports:
+      - "2222:22"   # for SSH if you install OpenSSH
